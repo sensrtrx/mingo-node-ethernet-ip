@@ -3,7 +3,7 @@ const dateFormat = require("dateformat");
 const TagGroup = require("../tag-group");
 const { delay, promiseTimeout } = require("../utilities");
 const TagList = require("../tag-list");
-const {Structure} = require("../structure")
+const { Structure } = require("../structure")
 const Queue = require("task-easy");
 const Tag = require("../tag");
 
@@ -39,7 +39,8 @@ class Controller extends ENIP {
                 minorUnrecoverableFault: false,
                 majorRecoverableFault: false,
                 majorUnrecoverableFault: false,
-                io_faulted: false
+                io_faulted: false,
+                isMicro800: opts.isMicro800 || false
             },
             subs: new TagGroup(compare),
             scanning: false,
@@ -148,7 +149,7 @@ class Controller extends ENIP {
      */
     set connectedMessaging(conn) {
         if (typeof conn !== "boolean") throw new Error("connectedMessaging must be of type <boolean>");
-        this.state.connectedMessaging= conn;
+        this.state.connectedMessaging = conn;
     }
 
     /**
@@ -194,18 +195,20 @@ class Controller extends ENIP {
 
         const sessid = await super.connect(IP_ADDR);
         if (!sessid) throw new Error("Failed to Register Session with Controller");
-        
+
         this._initializeControllerEventHandlers(); // Connect sendRRData Event
 
         if (this.state.connectedMessaging === true) {
             const connid = await this.forwardOpen();
-            if(!connid) throw new Error("Failed to Establish Forward Open Connection with Controller");
+            if (!connid) throw new Error("Failed to Establish Forward Open Connection with Controller");
         }
 
         // Fetch Controller Properties and Wall Clock
         await this.readControllerProps();
 
-        await this.getControllerTagList(this.state.tagList)
+        if (!this.state.controller.isMicro800) {
+            await this.getControllerTagList(this.state.tagList)
+        }
     }
 
     /**
@@ -219,7 +222,7 @@ class Controller extends ENIP {
     async disconnect() {
         if (super.established_conn === true) {
             const closeid = await this.forwardClose();
-            if(!closeid) throw new Error("Failed to End Connected EIP Session with Forward Close Request");
+            if (!closeid) throw new Error("Failed to End Connected EIP Session with Forward Close Request");
         }
 
         super.destroy();
@@ -237,7 +240,7 @@ class Controller extends ENIP {
     async forwardOpen() {
         const { FORWARD_OPEN } = CIP.MessageRouter.services;
         const { LOGICAL } = CIP.EPATH.segments;
-        const { owner, connectionType, fixedVar, priority} = CIP.ConnectionManager;
+        const { owner, connectionType, fixedVar, priority } = CIP.ConnectionManager;
 
         // Build Connection Manager Object Logical Path Buffer
         const cmPath = Buffer.concat([
@@ -249,9 +252,9 @@ class Controller extends ENIP {
         const MR = CIP.MessageRouter.build(FORWARD_OPEN, cmPath, []);
 
         // Create connection parameters
-        const params = CIP.ConnectionManager.build_connectionParameters(owner["Exclusive"], connectionType["PointToPoint"],priority["Low"],fixedVar["Variable"],500);
+        const params = CIP.ConnectionManager.build_connectionParameters(owner["Exclusive"], connectionType["PointToPoint"], priority["Low"], fixedVar["Variable"], 500);
         this.state.fwd_open_serial = getRandomInt(32767);
-        const forwardOpenData = CIP.ConnectionManager.build_forwardOpen(this.state.rpi * 1000, params, 1000 , 32, this.state.fwd_open_serial);
+        const forwardOpenData = CIP.ConnectionManager.build_forwardOpen(this.state.rpi * 1000, params, 1000, 32, this.state.fwd_open_serial);
 
         // Build MR Path in order to send the message to the CPU
         const mrPath = Buffer.concat([
@@ -260,14 +263,19 @@ class Controller extends ENIP {
         ]);
 
         // Concatenate path to CPU and how to reach the message router
-        const portPath = Buffer.concat([
-            this.state.controller.path,
-            mrPath
-        ]);
-
+        const portPath = !this.state.controller.isMicro800 ?
+            Buffer.concat([
+                this.state.controller.path,
+                mrPath
+            ])
+            :
+            Buffer.concat([
+                mrPath
+            ])
+            
         // This is the Connection Path data unit (Vol.1 Table 3-5.21)
         const connectionPath = Buffer.concat([
-            Buffer.from([Math.ceil(portPath.length/2)]), //Path size in WORDS
+            Buffer.from([Math.ceil(portPath.length / 2)]), //Path size in WORDS
             portPath
         ]);
 
@@ -297,7 +305,7 @@ class Controller extends ENIP {
         );
 
         this.removeAllListeners("Forward Open");
-        
+
         const OTconnID = data.readUInt32LE(0); // first 4 Bytes are O->T connection ID 
         super.id_conn = OTconnID;
         super.established_conn = true;
@@ -322,7 +330,7 @@ class Controller extends ENIP {
         // Message Router to Embed in UCMM
         const MR = CIP.MessageRouter.build(FORWARD_CLOSE, cmPath, []);
 
-        const forwardCloseData = CIP.ConnectionManager.build_forwardClose(1000 , 0x3333, 0x1337, this.state.fwd_open_serial);
+        const forwardCloseData = CIP.ConnectionManager.build_forwardClose(1000, 0x3333, 0x1337, this.state.fwd_open_serial);
 
         // Build MR Path in order to send the message to the CPU
         const mrPath = Buffer.concat([
@@ -338,7 +346,7 @@ class Controller extends ENIP {
 
         // This is the Connection Path data unit (Vol.1 Table 3-5.21)
         const connectionPath = Buffer.concat([
-            Buffer.from([Math.ceil(portPath.length/2)]), //Path size in WORDS
+            Buffer.from([Math.ceil(portPath.length / 2)]), //Path size in WORDS
             Buffer.from([0x00]), // Padding
             portPath
         ]);
@@ -367,7 +375,7 @@ class Controller extends ENIP {
         );
 
         this.removeAllListeners("Forward Close");
-        
+
         const OTconnID = data.readUInt32LE(0); // first 4 Bytes are O->T connection ID 
         super.id_conn = OTconnID;
         super.established_conn = false;
@@ -605,7 +613,7 @@ class Controller extends ENIP {
      * @memberof Controller
      */
     writeTag(tag, value = null, size = 0x01) {
-        if(tag.writeObjToValue) { tag.writeObjToValue() }
+        if (tag.writeObjToValue) { tag.writeObjToValue() }
         return this.workers.write.schedule(this._writeTag.bind(this), [tag, value, size], {
             priority: 1,
             timestamp: new Date()
@@ -709,7 +717,7 @@ class Controller extends ENIP {
             tagList.getControllerTags(this, program),
             this.state.timeout_sp * 4,
             getTagListErr
-        );   
+        );
     }
     // endregion
 
@@ -755,10 +763,10 @@ class Controller extends ENIP {
                 this.on("Read Tag", async (err, data) => {
                     if (err && err.generalStatusCode !== 6 && !(err.generalStatusCode === 255 && err.extendedStatus.toString() === [8453].toString())) {
                         reject(err);
-                        return;                     
+                        return;
                     }
 
-                    if(err && err.generalStatusCode === 255 && err.extendedStatus.toString() === [8453].toString()) {
+                    if (err && err.generalStatusCode === 255 && err.extendedStatus.toString() === [8453].toString()) {
                         tag.state.read_size--;
                         this._readTag(tag).catch(reject)
                     } else if (err && err.generalStatusCode === 6) {
@@ -766,15 +774,15 @@ class Controller extends ENIP {
                         resolve(null);
                     } else {
                         resolve(data);
-                    }                    
+                    }
                 });
             }),
             this.state.timeout_sp,
             readTagErr
         );
 
-        this.removeAllListeners("Read Tag");    
-        if (data) tag.parseReadMessageResponse(data);       
+        this.removeAllListeners("Read Tag");
+        if (data) tag.parseReadMessageResponse(data);
     }
 
     /**
@@ -790,13 +798,13 @@ class Controller extends ENIP {
         let offset = 0;
         let MR = tag.generateReadMessageRequestFrag(offset, size);
         this.write_cip(MR);
-        
+
         const typeSize = (tag.type === "STRUCT") ? 4 : 2;
 
         const readTagErr = new Error(`TIMEOUT occurred while writing Reading Tag: ${tag.name}.`);
 
         let retData = Buffer.alloc(0);
-        
+
         const data = await promiseTimeout(
             new Promise((resolve, reject) => {
                 this.on("Read Tag Fragmented", (err, data) => {
@@ -804,12 +812,12 @@ class Controller extends ENIP {
                         reject(err);
                         return;
                     }
-                    
+
                     const dataLength = data.length;
                     if (offset > 0) data = data.slice(typeSize);
                     offset += dataLength - typeSize;
 
-                    if (err && err.generalStatusCode === 6) {   
+                    if (err && err.generalStatusCode === 6) {
                         retData = Buffer.concat([retData, data]);
 
                         MR = tag.generateReadMessageRequestFrag(offset, size);
@@ -818,13 +826,13 @@ class Controller extends ENIP {
                         retData = Buffer.concat([retData, data]);
                         resolve(retData);
                     }
-                    
+
                 });
             }),
             this.state.timeout_sp,
             readTagErr
         );
-        
+
         this.removeAllListeners("Read Tag Fragmented");
 
         tag.parseReadMessageResponse(data);
@@ -846,7 +854,7 @@ class Controller extends ENIP {
         const MR = tag.generateWriteMessageRequest(value, size);
 
         this.write_cip(MR);
-        
+
         const writeTagErr = new Error(`TIMEOUT occurred while writing Writing Tag: ${tag.name}.`);
 
         // Wait for Response
@@ -856,16 +864,16 @@ class Controller extends ENIP {
                 // Full Tag Writing
                 this.on("Write Tag", (err, data) => {
                     if (err) reject(err);
-                    
+
                     tag.unstageWriteRequest();
                     resolve(data);
                 });
 
                 // Masked Bit Writing
                 this.on("Read Modify Write Tag", (err, data) => {
-                    
+
                     if (err) reject(err);
-                    
+
                     tag.unstageWriteRequest();
                     resolve(data);
                 });
@@ -906,7 +914,7 @@ class Controller extends ENIP {
                 this.on("Write Tag Fragmented", (err, data) => {
                     if (err) return reject(err);
                     offset += maxPacket;
-                    numWrites ++;
+                    numWrites++;
                     if (numWrites < totalWrites) {
                         valueFragment = tag.state.tag.value.slice(offset, maxPacket + offset);
                         MR = tag.generateWriteMessageRequestFrag(offset, valueFragment, size);
@@ -914,7 +922,7 @@ class Controller extends ENIP {
                     } else {
                         tag.unstageWriteRequest();
                         return resolve(data);
-                    }            
+                    }
                 });
             }),
             this.state.timeout_sp,
@@ -948,7 +956,7 @@ class Controller extends ENIP {
                                 await this._readTagFragmented(group.state.tags[msg.tag_ids[i]]).catch(reject);
                             }
                         }
-                        
+
                         resolve(data);
                     });
                 }),
@@ -995,7 +1003,7 @@ class Controller extends ENIP {
 
                 group.parseWriteMessageRequests(data, msg.tag_ids);
             } else {
-                await this.writeTag(msg.tag).catch(e => {throw e;});
+                await this.writeTag(msg.tag).catch(e => { throw e; });
             }
         }
     }
@@ -1093,7 +1101,7 @@ class Controller extends ENIP {
                 break;
             case WRITE_TAG_FRAGMENTED:
                 this.emit("Write Tag Fragmented", error, data);
-                break;            
+                break;
             case READ_MODIFY_WRITE_TAG:
                 this.emit("Read Modify Write Tag", error, data);
                 this.emit("Forward Close", error, data);
@@ -1223,7 +1231,7 @@ class Controller extends ENIP {
                 break;
             case WRITE_TAG_FRAGMENTED:
                 this.emit("Write Tag Fragmented", error, data);
-                break;            
+                break;
             case READ_MODIFY_WRITE_TAG:
                 this.emit("Read Modify Write Tag", error, data);
                 this.emit("Forward Close", error, data);
@@ -1289,7 +1297,7 @@ class Controller extends ENIP {
                 this.emit("Unknown Reply", { generalStatusCode: 0x99, extendedStatus: [] }, data);
                 break;
         }
-        /* eslint-enable indent */        
+        /* eslint-enable indent */
     }
 
     // _handleSessionRegistrationFailed(error) {
@@ -1310,8 +1318,8 @@ class Controller extends ENIP {
         let i = 1;
         while (true) {
             tag.state.read_size = i
-            await this.readTag(tag) 
-            if (tag.state.read_size !== i) 
+            await this.readTag(tag)
+            if (tag.state.read_size !== i)
                 break;
             i++
         }
@@ -1320,7 +1328,7 @@ class Controller extends ENIP {
     }
 
     newTag(tagname, program = null, subscribe = true, arrayDims = 0, arraySize = 0x01) {
-        let template = this.state.tagList.getTemplateByTag(tagname, program); 
+        let template = this.state.tagList.getTemplateByTag(tagname, program);
         let tag = null
         if (template) {
             tag = new Structure(tagname, this.state.tagList, program, null, 0, arrayDims, arraySize)
@@ -1336,7 +1344,7 @@ class Controller extends ENIP {
     }
 
     getTagByName(name) {
-        return Object.values(this.state.subs.state.tags).find(({state}) => state.tag.name === name) 
+        return Object.values(this.state.subs.state.tags).find(({ state }) => state.tag.name === name)
     }
 }
 

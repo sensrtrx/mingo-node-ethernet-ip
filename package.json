@@ -1,5 +1,5 @@
 {
-  "name": "mingo-node-ethernet-ip",
+  "name": "@sensrtrx/mingo-node-ethernet-ip",
   "version": "2.5.2",
   "description": "A simple node interface for Ethernet/IP.",
   "main": "./src/index.js",

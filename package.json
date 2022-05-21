@@ -1,5 +1,5 @@
 {
-    "name": "st-ethernet-ip",
+    "name": "mingo-ethernet-ip",
     "version": "2.4.5",
     "description": "A simple node interface for Ethernet/IP.",
     "main": "./src/index.js",

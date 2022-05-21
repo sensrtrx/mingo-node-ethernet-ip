@@ -1,3 +1,7 @@
+## [2.5.6](https://github.com/sensrtrx/mingo-node-ethernet-ip/compare/v2.5.5...v2.5.6) (2022-05-21)
+
+
+
 ## [2.5.5](https://github.com/sensrtrx/mingo-node-ethernet-ip/compare/v2.5.4...v2.5.5) (2022-05-21)
 
 

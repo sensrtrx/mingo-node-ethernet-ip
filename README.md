@@ -1,5 +1,3 @@
-<p align="center"><img width="280" src="https://i.imgur.com/HNxhZox.png" alt="Vue logo"></p>
-
 # Node Ethernet/IP
 
 A simple and lightweight node based API for interfacing with Rockwell Control/CompactLogix PLCs and Ethernet/IP I/O.
@@ -13,7 +11,7 @@ latest version of [NodeJS](https://nodejs.org/en/)
 Install with npm
 
 ```
-npm install st-ethernet-ip --save
+npm install @sensrtrx/mingo-node-ethernet-ip@2.5.5
 ```
 ## The API
 
@@ -26,7 +24,7 @@ How the heck does this thing work anyway? Great question!
 ```javascript
 //Connection Manager automagically reconnects to controller that have lost connection. Scanner auto initiated.
 
-const {ControllerManager} = require('st-ethernet-ip')
+const {ControllerManager} = require('@sensrtrx/mingo-node-ethernet-ip')
 
 const cm = new ControllerManager();
 
@@ -50,7 +48,7 @@ cont.on('error', (e) => {
 ### Arrays / UDTs
 
 ```javascript
-const {Controller} = require('st-ethernet-ip')
+const {Controller} = require('@sensrtrx/mingo-node-ethernet-ip')
 
 const PLC = new Controller();
 

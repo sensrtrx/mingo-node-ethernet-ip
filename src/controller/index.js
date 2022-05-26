@@ -46,7 +46,7 @@ class Controller extends ENIP {
             scan_rate: 200, //ms,
             connectedMessaging,
             timeout_sp: 10000, //ms
-            rpi: 10,
+            rpi: 10000,
             fwd_open_serial: 0,
             unconnectedSendTimeout: opts.unconnectedSendTimeout || 2000,
             tagList: new TagList(),

@@ -28,6 +28,9 @@ jobs:
       with:
         node-version: '18.x'
 
+    - name: Install Deps
+      run: npm install
+      
     - name: Build Distribution
       run: npm run build
 

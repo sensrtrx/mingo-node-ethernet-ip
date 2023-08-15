@@ -30,8 +30,6 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
         scope: '@sensrtrx'
 
-    - run: npm install -g npx
-    
     - name: Install Deps
       run: npm install
       

@@ -30,13 +30,11 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
         scope: '@sensrtrx'
 
-    - run: npm install -g yarn
-    
     - name: Install Deps
-      run: yarn install
+      run: npm install
       
     - name: Build Distribution
-      run: yarn build
+      run: npm run build
 
     - name: bump, changelog, release
       id: changelog

@@ -30,11 +30,13 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
         scope: '@sensrtrx'
 
+    - run: npm install -g npx
+    
     - name: Install Deps
       run: npm install
       
     - name: Build Distribution
-      run: npm run build
+      run: npx tsc -p TSConfig.json
 
     - name: bump, changelog, release
       id: changelog

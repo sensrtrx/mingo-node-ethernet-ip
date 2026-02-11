@@ -31,9 +31,9 @@ jobs:
         scope: '@sensrtrx'
 
     - name: Install Deps
-      run: npm install
+      run: npm ci
     - name: Build Distribution
-      run: npx tsc -p TSConfig.json
+      run: npm run build
 
     - name: bump, changelog, release
       id: changelog

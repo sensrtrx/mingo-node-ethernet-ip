@@ -1,4 +1,4 @@
-const encapsulation = require("./index");
+import * as encapsulation from "./index";
 
 describe("Encapsulation", () => {
     describe("Command Validator", () => {
@@ -12,7 +12,7 @@ describe("Encapsulation", () => {
 
         it("Rejects Invalid Commands", () => {
             expect(validateCommand(0x99)).toBeFalsy();
-            expect(validateCommand("hello")).toBeFalsy();
+            expect(validateCommand("hello" as any)).toBeFalsy();
             expect(validateCommand(0x02)).toBeFalsy();
         });
 
@@ -30,9 +30,9 @@ describe("Encapsulation", () => {
         const { parseStatus } = encapsulation;
 
         it("Rejects Non-Number Inputs", () => {
-            expect(() => parseStatus("test")).toThrow();
-            expect(() => parseStatus(null)).toThrow();
-            expect(() => parseStatus(undefined)).toThrow();
+            expect(() => parseStatus("test" as any)).toThrow();
+            expect(() => parseStatus(null as any)).toThrow();
+            expect(() => parseStatus(undefined as any)).toThrow();
         });
 
         it("Returns Proper Human Readable String", () => {
@@ -50,7 +50,7 @@ describe("Encapsulation", () => {
         } = encapsulation;
 
         it("Builds Correct Encapsulation Buffer", () => {
-            const snap = build(RegisterSession, 0x00, [0x01, 0x00, 0x00, 0x00]);
+            const snap = build(RegisterSession, 0x00, [0x01, 0x00, 0x00, 0x00] as any);
             expect(snap).toMatchSnapshot();
         });
     });
@@ -62,7 +62,7 @@ describe("Encapsulation", () => {
         } = encapsulation;
 
         it("Builds Correct Encapsulation Buffer", () => {
-            const data = build(SendRRData, 98705, [0x01, 0x00, 0x00, 0x00]);
+            const data = build(SendRRData, 98705, [0x01, 0x00, 0x00, 0x00] as any);
             const snap = parse(data);
 
             expect(snap).toMatchSnapshot();
@@ -119,13 +119,13 @@ describe("Encapsulation", () => {
             const test1 = [
                 { TypeID: ItemIDs.Null, data: [] },
                 { TypeID: ItemIDs.UCMM, data: "hello world" }
-            ];
+            ] as any;
 
             const test2 = [
                 { TypeID: ItemIDs.Null, data: [] },
                 { TypeID: ItemIDs.UCMM, data: "hello world" },
                 { TypeID: ItemIDs.ConnectionBased, data: "This is a test" }
-            ];
+            ] as any;
 
             expect(build(test1)).toMatchSnapshot();
             expect(build(test2)).toMatchSnapshot();
@@ -135,13 +135,13 @@ describe("Encapsulation", () => {
             const test1 = build([
                 { TypeID: ItemIDs.Null, data: [] },
                 { TypeID: ItemIDs.UCMM, data: "hello world" }
-            ]);
+            ] as any);
 
             const test2 = build([
                 { TypeID: ItemIDs.Null, data: [] },
                 { TypeID: ItemIDs.UCMM, data: "hello world" },
                 { TypeID: ItemIDs.ConnectionBased, data: "This is a test" }
-            ]);
+            ] as any);
 
             expect(parse(test1)).toMatchSnapshot();
             expect(parse(test2)).toMatchSnapshot();

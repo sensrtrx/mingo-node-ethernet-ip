@@ -71,6 +71,7 @@ export declare interface extController {
     on(event: 'Connected', listener: (this: this) => {}): this; 
     on(event: 'TagChanged', listener: (tag: Tag, previousValue: any) => {}): this;
     on(event: 'TagInit', listener: (tag: Tag) => {}): this;
+    on(event: 'TagUnknown', listener: (tag: Tag) => {}): this;
     on(event: 'Disconnected', listener: () => {}): this;
 }
 
@@ -103,14 +104,12 @@ export class extController extends EventEmitter{
     /**
      * Connect To Controller
      */
-    connect() {
-        this.reconnect = true;
+    connect(reconnect = true) {
+        this.reconnect = reconnect;
         this.PLC = new Controller(this.conncom);
-        this.PLC.rpi = this.rpi;
         this.PLC.connect(this.ipAddress, this.slot).then(async () => {
             this.connected = true;
             this.PLC.scan_rate = this.rpi;
-      
             this.tags.forEach(tag => {
                 tag.tag = this.PLC.newTag(tag.tagname, tag.program, true, tag.arrayDims, tag.arraySize);
                 this.addTagEvents(tag.tag);
@@ -134,6 +133,9 @@ export class extController extends EventEmitter{
         tag.on("Initialized", () => {
             this.emit("TagInit", tag);
         });
+        tag.on("Unknown", () => {
+            this.emit("TagUnknown", tag);
+        })
     }
 
     /**
@@ -141,16 +143,13 @@ export class extController extends EventEmitter{
      * 
      * @param e - Error emitted
      */
-    errorHandle(e: Error) {
-        this.emit("Error", e);
-
-        if(e.message && (e.message.slice(0,7) === "TIMEOUT" || e.message.slice(0,6) === "SOCKET")) {
-
-            this.connected = false;
-            this.PLC.destroy();
-            this.emit("Disconnected");
-            if(this.reconnect) {setTimeout(() => {this.connect();}, this.retryTimeSP);}
-        }
+    errorHandle(e: any) {
+        this.emit("Error", e); 
+        this.connected = false;
+        this.PLC.destroy();
+        this.PLC._removeControllerEventHandlers();
+        this.emit("Disconnected");
+        if(this.reconnect) {setTimeout(() => {this.connect();}, this.retryTimeSP);}
     }
     
     /**
@@ -182,6 +181,23 @@ export class extController extends EventEmitter{
                 tag: tag
             });
             return tag;
+        }
+    }
+
+    /**
+     * Remove tag from controller scan list.
+     * 
+     * @param tagname - Tag Name 
+     * @param program - Program Name
+     */
+    removeTag(tagname: string, program: string = null) {
+        tagname = (program) ? tagname.slice(tagname.indexOf(".") + 1) : tagname;
+        let tagIndex = this.tags.findIndex(tag => {
+            return tag.tagname === tagname && tag.program === program;
+        })
+        if (tagIndex > -1) {
+            this.PLC.state.subs.remove(this.tags[tagIndex].tag);
+            this.tags.splice(tagIndex, 1);
         }
     }
 

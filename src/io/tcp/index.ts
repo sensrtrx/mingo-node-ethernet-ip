@@ -220,7 +220,7 @@ class Controller extends ENIP {
      * @param SLOT - Controller Slot Number (0 if CompactLogix), or a Buffer representing the whole routing path
      * @returns Promise that resolves after connection
      */
-    async connect(IP_ADDR: string, SLOT: number | Buffer = 0, SETUP: boolean = true): Promise<number> {
+    async connect(IP_ADDR: string, SLOT: number | Buffer = 0, localAddress: string): Promise<number> {
                
         const { PORT } = CIP.EPATH.segments;
         const BACKPLANE = 1;
@@ -234,7 +234,7 @@ class Controller extends ENIP {
             throw new Error("Invalid slot parameter type, must be either a number or a Buffer");
         }
 
-        await super.connect(IP_ADDR, this.timeout_sp);   
+        await super.connect(IP_ADDR, this.timeout_sp, localAddress);   
         
         this._initializeControllerEventHandlers(); // Connect sendRRData Event
         
@@ -366,9 +366,16 @@ class Controller extends ENIP {
         const pointOT = LOGICAL.build(LOGICAL.types.ConnPoint, this.outputInstance.assembly);
         // Input Instance
         const pointTO = LOGICAL.build(LOGICAL.types.ConnPoint, this.inputInstance.assembly);
+        // Config Data
+        let cipPath;
+        if (this.configInstance.size > 0 && Buffer.isBuffer(this.configInstance.data) && this.configInstance.size === this.configInstance.data.length) {
+            const DATA = CIP.EPATH.segments.DATA;
+            cipPath = Buffer.concat([assemblyObjectClass, configInstance, pointOT, pointTO, DATA.build(this.configInstance.data, false)]);
+        } else {
+            cipPath = Buffer.concat([assemblyObjectClass, configInstance, pointOT, pointTO]);
 
-        const cipPath = Buffer.concat([assemblyObjectClass, configInstance, pointOT, pointTO]);
-
+        }
+        
         return(Buffer.concat([electronicKey, cipPath]));
     }
 

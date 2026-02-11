@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import * as crypto from 'crypto';
 import { CIP } from '../enip';
 const { MessageRouter } = CIP;
-const { READ_TAG, WRITE_TAG, READ_MODIFY_WRITE_TAG, READ_TAG_FRAGMENTED } = MessageRouter.services;
+const { READ_TAG, WRITE_TAG, READ_MODIFY_WRITE_TAG, READ_TAG_FRAGMENTED, WRITE_TAG_FRAGMENTED } = MessageRouter.services;
 import { Types, getTypeCodeString, isValidTypeCode } from '../enip/cip/data-types';
 import dateFormat from 'dateformat';
 import equals from 'deep-equal';
@@ -41,6 +41,7 @@ export declare interface Tag extends EventEmitter {
     on(event: string, listener: Function): this;
     on(event: 'Changed', listener: (this: this, previousValue: any) => {}): this;
     on(event: 'Initialized', listener: (this: this) => {}): this;
+    on(event: 'Unknown', listener: (this: this) => {}): this;
     on(event: 'KeepAlive', listener: (this: this) => {}): this;
 }
 
@@ -184,6 +185,17 @@ export class Tag extends EventEmitter {
         } else {
             return `Program:${program}.${name}`;
         }
+    }
+
+    /**
+     * Gets Program Name
+     *
+     * @returns program
+     */
+    get program():string {
+        const { program } = this.state.tag;
+
+        return program
     }
 
     /**
@@ -373,6 +385,10 @@ export class Tag extends EventEmitter {
     }
     // endregion
 
+    unknownTag(): void {
+        this.state.timestamp = new Date();
+        this.emit("Unknown", this);
+    }
     // region Public Methods
     
     /**
@@ -478,7 +494,7 @@ export class Tag extends EventEmitter {
      * @param Data - Returned from Successful Read Tag Request
      */
     parseReadMessageResponseValueForAtomic(data: Buffer) {
-        const { SINT, INT, DINT, REAL, BOOL, LINT, BIT_STRING, UINT } = Types;
+        const { SINT, INT, DINT, REAL, BOOL, LINT, BIT_STRING, UINT, SHORT_STRING, USINT } = Types;
 
         const { read_size } = this.state;
 
@@ -496,6 +512,17 @@ export class Tag extends EventEmitter {
                     this.controller_value = data.readInt8(2);
                 }
                 break;
+            case USINT:
+                    if (data.length > 3) {
+                        const array = [];
+                        for (let i = 0; i < data.length - 2; i++) {
+                            array.push(data.readUInt8(i + 2));
+                        }
+                        this.controller_value = array;
+                    } else {
+                        this.controller_value = data.readUInt8(2);
+                    }
+                    break;
             case UINT:
                 if (data.length > 4) {
                     const array = [];
@@ -567,9 +594,23 @@ export class Tag extends EventEmitter {
                     this.controller_value = data.readBigInt64LE(2);
                 }
                 break;
+            case SHORT_STRING: // single byte character string
+                if (data.length > 3) {
+                    const len = data.readUInt8(2);
+                    this.controller_value = data.toString('utf8', 3); // use latin1 encoding?
+                    if (len !== this.controller_value.length) {
+                        throw new Error(` Read from Controller: Short string length mismatch`);
+                    }
+                } else {
+                    //empty string, data[2] will be 0 as well, as it is the string length
+                    //return empty string instead of null
+                    this.controller_value = '';//null;
+                }
+                break;
             default:
+                const ttt = CIP.DataTypes.getTypeCodeString(this.state.tag.type);
                 throw new Error(
-                    `Unrecognized Type Passed Read from Controller: ${this.state.tag.type}`
+                    `Unrecognized Type Passed Read from Controller: ${this.state.tag.type} ${ttt}`
                 );
         }
         /* eslint-enable indent */
@@ -584,7 +625,9 @@ export class Tag extends EventEmitter {
      * @memberof Tag
      */
     generateWriteMessageRequest(value: any = null, size: number = 0x01): Buffer {
-        if (value !== null) this.state.tag.value = value;
+        if (value !== null) {
+            this.state.tag.value = value;
+        } 
 
         const { tag } = this.state;
 
@@ -652,15 +695,19 @@ export class Tag extends EventEmitter {
      */
     generateWriteMessageRequestForAtomic(value: any, size: number) {
         const { tag } = this.state;
-        const { SINT, INT, DINT, REAL, BOOL, LINT } = Types;
+        const { BIT_STRING ,SINT, INT, DINT, REAL, BOOL, LINT, SHORT_STRING, USINT } = Types;
         // Build Message Router to Embed in UCMM
         let buf = Buffer.alloc(4);
         let valBuf = null;
 
         buf.writeUInt16LE(tag.type, 0);
 
-        if (Array.isArray(value)) {
-            buf.writeUInt16LE(value.length, 2);
+        if (Array.isArray(tag.value)) {
+            if (tag.type == BIT_STRING) {
+                buf.writeUInt16LE(Math.ceil(tag.value.length / 32), 2);
+            } else {
+                buf.writeUInt16LE(tag.value.length, 2);
+            }
         } else {
             buf.writeUInt16LE(size, 2);
         }
@@ -668,10 +715,10 @@ export class Tag extends EventEmitter {
         /* eslint-disable indent */
         switch (tag.type) {
             case SINT:
-                if (Array.isArray(value)) {
-                    valBuf = Buffer.alloc(value.length);
-                    for (var i = 0; i < value.length; i++) {
-                        valBuf.writeUInt8(value[i], i);
+                if (Array.isArray(tag.value)) {
+                    valBuf = Buffer.alloc(tag.value.length);
+                    for (var i = 0; i < tag.value.length; i++) {
+                        valBuf.writeInt8(tag.value[i], i);
                     }
                 } else {
                     valBuf = Buffer.alloc(1);
@@ -679,11 +726,23 @@ export class Tag extends EventEmitter {
                 }
                 buf = Buffer.concat([buf, valBuf]);
                 break;
+            case USINT:
+                    if (Array.isArray(tag.value)) {
+                        valBuf = Buffer.alloc(tag.value.length);
+                        for (var i = 0; i < tag.value.length; i++) {
+                            valBuf.writeUInt8(tag.value[i], i);
+                        }
+                    } else {
+                        valBuf = Buffer.alloc(1);
+                        valBuf.writeUInt8(tag.value);                    
+                    }
+                    buf = Buffer.concat([buf, valBuf]);
+                    break;
             case INT:
-                if (Array.isArray(value)) {
-                    valBuf = Buffer.alloc(2 * value.length);
-                    for (let i = 0; i < value.length; i++) {
-                        valBuf.writeInt16LE(value[i], i * 2);
+                if (Array.isArray(tag.value)) {
+                    valBuf = Buffer.alloc(2 * tag.value.length);
+                    for (let i = 0; i < tag.value.length; i++) {
+                        valBuf.writeInt16LE(tag.value[i], i * 2);
                     }
                 } else {
                     valBuf = Buffer.alloc(2);
@@ -692,10 +751,10 @@ export class Tag extends EventEmitter {
                 buf = Buffer.concat([buf, valBuf]);
                 break;
             case DINT:
-                if (Array.isArray(value)) {
-                    valBuf = Buffer.alloc(4 * value.length);
-                    for (let i = 0; i < value.length; i++) {
-                        valBuf.writeUInt32LE(value[i], i * 4);
+                if (Array.isArray(tag.value)) {
+                    valBuf = Buffer.alloc(4 * tag.value.length);
+                    for (let i = 0; i < tag.value.length; i++) {
+                        valBuf.writeInt32LE(tag.value[i], i * 4);
                     }
                 } else {
                     valBuf = Buffer.alloc(4);
@@ -704,10 +763,10 @@ export class Tag extends EventEmitter {
                 buf = Buffer.concat([buf, valBuf]);               
                 break;
             case REAL:
-                if (Array.isArray(value)) {
-                    valBuf = Buffer.alloc(4 * value.length);
-                    for (let i = 0; i < value.length; i++) {
-                        valBuf.writeFloatLE(value[i], i * 4);
+                if (Array.isArray(tag.value)) {
+                    valBuf = Buffer.alloc(4 * tag.value.length);
+                    for (let i = 0; i < tag.value.length; i++) {
+                        valBuf.writeFloatLE(tag.value[i], i * 4);
                     }
                 } else {
                     valBuf = Buffer.alloc(4);
@@ -727,14 +786,51 @@ export class Tag extends EventEmitter {
                 if(typeof valBuf.writeBigInt64LE !== "function") {
                     throw new Error("This version of Node.js does not support big integers. Upgrade to >= 12.0.0");
                 }
-                if (Array.isArray(value)) {
-                    valBuf = Buffer.alloc(8 * value.length);
-                    for (let i = 0; i < value.length; i++) {
-                        valBuf.writeBigInt64LE(value[i], i * 8);
+                if (Array.isArray(tag.value)) {
+                    valBuf = Buffer.alloc(8 * tag.value.length);
+                    for (let i = 0; i < tag.value.length; i++) {
+                        if (typeof tag.value[i] != 'bigint') {
+                            tag.value[i]= BigInt(tag.value[i]);
+                        }
+
+                        valBuf.writeBigInt64LE(tag.value[i], i * 8);
+                        
+                        
                     }
                 } else {
                     valBuf = Buffer.alloc(8);
-                    valBuf.writeBigInt64LE(tag.value);                    
+                    if (typeof tag.value != 'bigint') {
+                        tag.value= BigInt(tag.value);
+                    }
+
+                    valBuf.writeBigInt64LE(tag.value);
+                    
+                                        
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case SHORT_STRING:
+                valBuf = Buffer.alloc(1);
+                if (!tag.value || tag.value.length === 0)
+                    valBuf.writeInt8(0x00);
+                else {
+                    const strBuf = Buffer.from(tag.value, 'latin1');
+                    const strlen = strBuf.length;
+                    if ( strlen > 255) {
+                        throw new Error(`String too long to Write to Controller: ${tag.type}, limit 255 bytes, length ${strlen}`);
+                    }
+                    valBuf = Buffer.alloc(1 + strlen); // 1+ for length byte
+                    valBuf.writeUInt8(strlen);//write the length
+                    strBuf.copy(valBuf,1,);
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case BIT_STRING:     
+                valBuf = Buffer.alloc(Math.ceil(tag.value.length / 32) *  4);
+                for (let i = 0; i < tag.value.length; i++) {
+                    if (tag.value[i] == true) {
+                        valBuf[Math.floor(i / 8)] |= 0x01 << Math.floor(i % 8)
+                    }      
                 }
                 buf = Buffer.concat([buf, valBuf]);
                 break;
@@ -744,6 +840,129 @@ export class Tag extends EventEmitter {
 
         // Build Current Message
         return MessageRouter.build(WRITE_TAG, tag.path, buf);
+    }
+
+    /**
+     * Generates Write Tag Message Frag
+     *
+     * @param offset - Offset of data already written
+     * @param value - If Omitted, Tag.value will be used
+     * @param size
+     * @returns Write Tag Message Service
+     * @memberof Tag
+     */
+    generateWriteMessageRequestFrag(offset: number = 0, value: any, size: number = 0x01) {
+        const { tag } = this.state;
+        const { BIT_STRING, SINT, INT, DINT, REAL, BOOL, LINT, SHORT_STRING    } = Types;
+        // Build Message Router to Embed in UCMM
+        let buf = Buffer.alloc(8);
+        let valBuf = null;
+
+        buf.writeUInt16LE(tag.type, 0);
+        buf.writeUInt16LE(this.value.length, 2);
+        buf.writeUInt32LE(offset, 4);
+
+        /* eslint-disable indent */
+        switch (tag.type) {
+            case SINT:
+                if (Array.isArray(value)) {
+                    valBuf = Buffer.alloc(value.length);
+                    for (var i = 0; i < value.length; i++) {
+                        valBuf.writeInt8(value[i], i);
+                    }
+                } else {
+                    valBuf = Buffer.alloc(1);
+                    valBuf.writeInt8(value);                    
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case INT:
+                if (Array.isArray(value)) {
+                    valBuf = Buffer.alloc(2 * value.length);
+                    for (let i = 0; i < value.length; i++) {
+                        valBuf.writeInt16LE(value[i], i * 2);
+                    }
+                } else {
+                    valBuf = Buffer.alloc(2);
+                    valBuf.writeInt16LE(value);                    
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case DINT:
+                if (Array.isArray(value)) {
+                    valBuf = Buffer.alloc(4 * value.length);
+                    for (let i = 0; i < value.length; i++) {
+                        valBuf.writeInt32LE(value[i], i * 4);
+                    }
+                } else {
+                    valBuf = Buffer.alloc(4);
+                    valBuf.writeInt32LE(value);                    
+                }
+                buf = Buffer.concat([buf, valBuf]);               
+                break;
+            case REAL:
+                if (Array.isArray(value)) {
+                    valBuf = Buffer.alloc(4 * value.length);
+                    for (let i = 0; i < value.length; i++) {
+                        valBuf.writeFloatLE(value[i], i * 4);
+                    }
+                } else {
+                    valBuf = Buffer.alloc(4);
+                    valBuf.writeFloatLE(value);                    
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case BOOL:
+                valBuf = Buffer.alloc(1);
+                if (!value) valBuf.writeInt8(0x00);
+                else valBuf.writeInt8(0x01);
+
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case LINT:
+                valBuf = Buffer.alloc(8);
+                if(typeof valBuf.writeBigInt64LE !== "function") {
+                    throw new Error("This version of Node.js does not support big integers. Upgrade to >= 12.0.0");
+                }
+                if (Array.isArray(value)) {
+                    valBuf = Buffer.alloc(8 * value.length);
+                    for (let i = 0; i < value.length; i++) {
+                        if (typeof value[i] != 'bigint') {
+                            value[i] = BigInt(value[i])
+                        }
+                        valBuf.writeBigInt64LE(value[i], i * 8);
+                    }
+                } else {
+                    valBuf = Buffer.alloc(8);
+                    if (typeof value != 'bigint') {
+                        value = BigInt(value[i])
+                    }
+                    valBuf.writeBigInt64LE(value);                    
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            case SHORT_STRING:
+                valBuf = Buffer.alloc(1);
+                if (!tag.value || tag.value.length === 0)
+                    valBuf.writeInt8(0x00);
+                else {
+                    const strBuf = Buffer.from(tag.value, 'latin1');
+                    const strlen = strBuf.length;
+                    if ( strlen > 255) {
+                        throw new Error(`String too long to Write to Controller: ${tag.type}, limit 255 bytes, length ${strlen}`);
+                    }
+                    valBuf = Buffer.alloc(1 + strlen); // 1+ for length byte
+                    valBuf.writeUInt8(strlen);//write the length
+                    strBuf.copy(valBuf,1,);
+                }
+                buf = Buffer.concat([buf, valBuf]);
+                break;
+            default:
+                throw new Error(`Unrecognized Type to Write to Controller: ${tag.type}`);
+        }
+
+        // Build Current Message
+        return MessageRouter.build(WRITE_TAG_FRAGMENTED, tag.path, buf); 
     }
 
     /**

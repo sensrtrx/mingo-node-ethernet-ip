@@ -1,14 +1,14 @@
-const { promiseTimeout, delay } = require("./index");
+import { promiseTimeout, delay } from "./index";
 
 describe("Utilites", () => {
     describe("Promise Timeout Utility", () => {
         it("Resolves and Rejects as Expected", async () => {
-            const fn = (ms, arg) => {
+            const fn = (ms: number, arg?: any) => {
                 return promiseTimeout(
                     new Promise(resolve => {
                         setTimeout(() => {
                             if (arg) resolve(arg);
-                            resolve();
+                            resolve(undefined);
                         }, ms);
                     }),
                     100,
@@ -27,11 +27,11 @@ describe("Utilites", () => {
 
     describe("Delay Utility", () => {
         it("Resolves and Rejects as Expected", async () => {
-            const fn = ms => {
+            const fn = (ms: number) => {
                 return promiseTimeout(
                     new Promise(async resolve => {
                         await delay(ms);
-                        resolve();
+                        resolve(undefined);
                     }),
                     100,
                     "error"

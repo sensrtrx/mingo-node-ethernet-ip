@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Tag Class Generate Read Requests Method Generates Appropriate Output 1`] = `
-Array [
-  Object {
-    "data": Object {
-      "data": Array [
+[
+  {
+    "data": {
+      "data": [
         10,
         2,
         32,
@@ -176,7 +176,7 @@ Array [
       ],
       "type": "Buffer",
     },
-    "tag_ids": Array [
+    "tag_ids": [
       "f933545900d94fa18e26bf9495c807a5",
       "6a094b0c9172a58a127de4f4e3d07b4d",
       "b76fbe023a62902b18acbd368c5dec70",
@@ -187,4 +187,4 @@ Array [
 ]
 `;
 
-exports[`Tag Class Generate Write Requests Method Generates Appropriate Output 1`] = `Array []`;
+exports[`Tag Class Generate Write Requests Method Generates Appropriate Output 1`] = `[]`;

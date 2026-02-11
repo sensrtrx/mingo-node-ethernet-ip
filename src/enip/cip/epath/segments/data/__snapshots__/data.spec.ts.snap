@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     145,
     10,
     84,
@@ -21,8 +21,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 2`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     128,
     2,
     1,
@@ -35,8 +35,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 3`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     145,
     7,
     83,
@@ -53,8 +53,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 4`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     40,
     0,
   ],
@@ -63,8 +63,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 5`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     40,
     255,
   ],
@@ -73,8 +73,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 6`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     41,
     0,
     0,
@@ -85,8 +85,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 7`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     41,
     0,
     1,
@@ -97,8 +97,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 8`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     41,
     0,
     255,
@@ -109,8 +109,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 9`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     42,
     0,
     0,
@@ -123,8 +123,8 @@ Object {
 `;
 
 exports[`EPATH DATA Segment Build Utility Generates Appropriate Output 10`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     42,
     0,
     1,

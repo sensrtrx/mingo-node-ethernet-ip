@@ -258,9 +258,10 @@ class Controller extends ENIP {
      * @param classID 
      * @param instance 
      * @param attribute 
+     * @param attData buffer with additional data to append to request (optional)
      * @returns attribute buffer
      */
-    async getAttributeSingle(classID: number, instance: number, attribute: number): Promise<Buffer> {
+    async getAttributeSingle(classID: number, instance: number, attribute: number, attData: Buffer = Buffer.alloc(0)): Promise<Buffer> {
         const { GET_ATTRIBUTE_SINGLE } = CIP.MessageRouter.services;
         const { LOGICAL } = CIP.EPATH.segments;
        
@@ -270,25 +271,28 @@ class Controller extends ENIP {
             LOGICAL.build(LOGICAL.types.AttributeID, attribute) 
         ]);
 
-        const MR = CIP.MessageRouter.build(GET_ATTRIBUTE_SINGLE, identityPath, Buffer.from([]));
+        const MR = CIP.MessageRouter.build(GET_ATTRIBUTE_SINGLE, identityPath, attData);
 
         super.write_cip(MR, super.established_conn);
 
         const readPropsErr = new Error("TIMEOUT occurred while reading Param.");
 
         // Wait for Response
-        const data = await promiseTimeout(
-            new Promise((resolve, reject) => {
-                this.on("Get Attribute Single", (err, data) => {
-                    if (err) reject(err);
-                    resolve(data);
-                });
-            }),
-            this.state.timeout_sp,
-            readPropsErr
-        );
-        this.removeAllListeners("Get Attribute Single");
-        return data
+        try {
+            const data = await promiseTimeout(
+                new Promise((resolve, reject) => {
+                    this.on("Get Attribute Single", (err, data) => {
+                        if (err) reject(err);
+                        resolve(data);
+                    });
+                }),
+                this.state.timeout_sp,
+                readPropsErr
+            );
+            return data
+        } finally {
+            this.removeAllListeners("Get Attribute Single");
+        }          
     }
 
     /**
@@ -998,7 +1002,11 @@ class Controller extends ENIP {
      * @returns Promise resolved when complete
      */
     async _writeTag(tag: Tag | Structure, value: any = null, size: number = 0x01): Promise<void> {
-        if (tag.state.tag.value.length > (480 - tag.path.length) && (tag instanceof Structure))
+        let dataSize = 1
+        if (tag.state.tag.type >= 0xc1 && tag.state.tag.type <= 0xca) { 
+            dataSize = CIP.DataTypes.TypeSizes[tag.state.tag.type]
+        }
+        if (tag.state.tag.value.length * dataSize > (480 - tag.path.length))
             return this._writeTagFragmented(tag, value, size);
 
         const MR = tag.generateWriteMessageRequest(value, size);
@@ -1044,16 +1052,20 @@ class Controller extends ENIP {
      * @param size - Number of tags to read used for arrays
      * @returns Promise resolved when complete
      */
-    async _writeTagFragmented(tag: Structure, value: any = null, size: number = 0x01): Promise<void> {
-        if(value) tag.value = value;
+    async _writeTagFragmented(tag: Structure | Tag, value: any = null, size: number = 0x01): Promise<void> {
+        if(value !== null) tag.value = value;
         let offset = 0;
         const maxPacket = 480 - tag.path.length;
-        let valueFragment = tag.state.tag.value.slice(offset, maxPacket);
+        let dataSize = 1
+        if (tag.state.tag.type >= 0xc1 && tag.state.tag.type <= 0xca) { 
+            dataSize = CIP.DataTypes.TypeSizes[tag.state.tag.type]
+        }
+        let valueFragment = tag.state.tag.value.slice(0, Math.floor(maxPacket / dataSize));
         let MR = tag.generateWriteMessageRequestFrag(offset, valueFragment, size);
-
         this.write_cip(MR);
         let numWrites = 0;
-        let totalWrites = Math.ceil(tag.state.tag.value.length / maxPacket);
+       
+        let totalWrites = Math.ceil(tag.state.tag.value.length * dataSize / maxPacket);
         const writeTagErr = new Error(`TIMEOUT occurred while writing Writing Tag: ${tag.name}.`);
 
         // Wait for Response
@@ -1063,10 +1075,10 @@ class Controller extends ENIP {
                 // Full Tag Writing
                 this.on("Write Tag Fragmented", (err, data) => {
                     if (err) return reject(err);
-                    offset += maxPacket;
+                    offset += Math.floor(maxPacket / dataSize) * dataSize;
                     numWrites ++;
                     if (numWrites < totalWrites) {
-                        valueFragment = tag.state.tag.value.slice(offset, maxPacket + offset);
+                        valueFragment = tag.state.tag.value.slice(Math.floor(offset / dataSize), Math.floor(maxPacket / dataSize) + Math.floor(offset / dataSize));
                         MR = tag.generateWriteMessageRequestFrag(offset, valueFragment, size);
                         this.write_cip(MR);
                     } else {
@@ -1099,7 +1111,7 @@ class Controller extends ENIP {
             const data = await promiseTimeout(
                 new Promise((resolve, reject) => {
                     this.on("Multiple Service Packet", async (err, data) => {
-                        if (err && err.generalStatusCode !== 6) reject(err);
+                        if (err && err.generalStatusCode !== 6 && err.generalStatusCode !== 4) reject(err);
                         for (let i = 0; i < data.length; i++) {
                             if (data[i].generalStatusCode === 6) {
                                 await this._readTagFragmented(group.state.tags[msg.tag_ids[i]]).catch(reject);

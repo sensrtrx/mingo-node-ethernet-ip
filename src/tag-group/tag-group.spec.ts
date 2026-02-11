@@ -1,6 +1,6 @@
-const TagGroup = require("./index");
-const Tag = require("../tag");
-const { Types } = require("../enip/cip/data-types");
+import TagGroup from "./index";
+import Tag from "../tag";
+import { Types } from "../enip/cip/data-types";
 
 describe("Tag Class", () => {
     describe("Generate Read Requests Method", () => {

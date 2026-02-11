@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Message Router Builder Produces the Correct Output Buffer 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     65,
     6,
     72,
@@ -34,9 +34,9 @@ Object {
 `;
 
 exports[`Message Router Parser Parses MR Object Correctly 1`] = `
-Object {
-  "data": Object {
-    "data": Array [
+{
+  "data": {
+    "data": [
       1,
       2,
       3,
@@ -45,7 +45,7 @@ Object {
     ],
     "type": "Buffer",
   },
-  "extendedStatus": Array [
+  "extendedStatus": [
     769,
     261,
     1283,

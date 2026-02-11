@@ -1,10 +1,10 @@
-const router = require("./index");
+import * as router from "./index";
 
 describe("Message Router", () => {
     describe("Builder", () => {
         it("Produces the Correct Output Buffer", () => {
             const { build } = router;
-            const test = build(0x41, "Hello World", "Hello World");
+            const test = build(0x41, "Hello World" as any, "Hello World" as any);
 
             expect(test).toMatchSnapshot();
         });

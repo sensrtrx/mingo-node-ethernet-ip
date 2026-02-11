@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Controller Class Properties Accessors Controller Properties 1`] = `
-Object {
+{
   "faulted": false,
   "io_faulted": false,
+  "isMicro800": false,
   "majorRecoverableFault": false,
   "majorUnrecoverableFault": false,
   "minorRecoverableFault": false,

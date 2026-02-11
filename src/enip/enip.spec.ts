@@ -1,4 +1,4 @@
-const { ENIP } = require("./index");
+import { ENIP } from "./index";
 
 describe("ENIP Class", () => {
     describe("Properties Accessors", () => {
@@ -29,7 +29,7 @@ describe("ENIP Class", () => {
             enip.state.session.id = 23455;
             expect(enip.session_id).toBe(23455);
         });
-        
+
         it("establishing_conn", () => {
             const enip = new ENIP();
             expect(enip.establishing_conn).toBe(false);
@@ -41,11 +41,11 @@ describe("ENIP Class", () => {
             expect(enip.state.connection.establishing).toBe(false);
 
             expect(() => {
-                enip.establishing_conn = "establishing";
+                enip.establishing_conn = "establishing" as any;
             }).toThrow();
         });
 
-        
+
         it("established_conn", () => {
             const enip = new ENIP();
             expect(enip.established_conn).toBe(false);
@@ -57,10 +57,10 @@ describe("ENIP Class", () => {
             expect(enip.state.connection.established).toBe(false);
 
             expect(() => {
-                enip.established_conn = "established";
+                enip.established_conn = "established" as any;
             }).toThrow();
         });
-        
+
         it("id_conn", () => {
             const enip = new ENIP();
             expect(enip.id_conn).toBe(null);
@@ -72,7 +72,7 @@ describe("ENIP Class", () => {
             expect(enip.state.connection.id).toBe(0x00);
 
             expect(() => {
-                enip.id_conn = "myTestID";
+                enip.id_conn = "myTestID" as any;
             }).toThrow();
         });
 
@@ -87,7 +87,7 @@ describe("ENIP Class", () => {
             expect(enip.state.connection.seq_num).toBe(0x02);
 
             expect(() => {
-                enip.seq_conn = "mySeqNo";
+                enip.seq_conn = "mySeqNo" as any;
             }).toThrow();
         });
     });

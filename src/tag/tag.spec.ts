@@ -1,10 +1,10 @@
-const Tag = require("./index");
-const { Types } = require("../enip/cip/data-types");
+import Tag from "./index";
+import { Types } from "../enip/cip/data-types";
 
 describe("Tag Class", () => {
     describe("New Instance", () => {
         it("Throws Error on Invalid Inputs", () => {
-            const fn = (tagname, prog, type = Types.UDINT) => {
+            const fn = (tagname: any, prog?: any, type = Types.UDINT) => {
                 return () => new Tag(tagname, prog, type);
             };
 
@@ -19,7 +19,7 @@ describe("Tag Class", () => {
 
     describe("Tagname Validator", () => {
         it("Accepts and Rejects Appropriate Inputs", () => {
-            const fn = test => Tag.isValidTagname(test);
+            const fn = (test: any) => Tag.isValidTagname(test);
 
             expect(fn("_sometagname")).toBeTruthy();
             expect(fn(12345)).toBeFalsy();
@@ -133,7 +133,7 @@ describe("Tag Class", () => {
 
         it("should throw an error on non-number types", () => {
             expect(() => {
-                new Tag("testkeepalive", undefined, undefined, "apple");
+                new Tag("testkeepalive", undefined, undefined, "apple" as any);
             }).toThrowError("Tag expected keepAlive of type <number> instead got type <string>");
         });
 

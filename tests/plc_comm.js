@@ -1,12 +1,12 @@
-const eip = require('../dist/index.js');
-const commTags = require('./plc_comm_tags.json');
-const deepEqual = require('deep-equal');
+const eip = require("../dist/index.js");
+const commTags = require("./plc_comm_tags.json");
+const deepEqual = require("deep-equal");
 
 
 if (process.argv.length > 2 ) {
     testSuite(process.argv[2]);
 } else {
-    console.log('Missing IP address argument.');
+    console.log("Missing IP address argument.");
 }
 
 function testSuite(ipAddress){ 
@@ -23,41 +23,41 @@ function testSuite(ipAddress){
                 try {
                     await PLC.readTag(tag);
                     if (deepEqual(tag.value, test.startValue)) {
-                        console.log('Read Tag ->', tag.name, ':', tag.value, 'Pass');
+                        console.log("Read Tag ->", tag.name, ":", tag.value, "Pass");
                         testsPassed++;
 
                     } else {
-                        console.log('Read Tag ->', tag.name, ':', tag.value, 'Should Be: ', test.startValue, 'Fail');
+                        console.log("Read Tag ->", tag.name, ":", tag.value, "Should Be: ", test.startValue, "Fail");
                         testsFailed++;
                     }
 
                     if (test.testValue != null) {
 
-                        tag.value = test.testValue
+                        tag.value = test.testValue;
 
-                        await PLC.writeTag(tag)
-                        console.log('Write Tag ->', tag.name, ':', tag.value);
+                        await PLC.writeTag(tag);
+                        console.log("Write Tag ->", tag.name, ":", tag.value);
                         
                         await PLC.readTag(tag);
                         if (deepEqual(tag.value, test.testValue)) {
-                            console.log('Read Tag ->', tag.name, ':', tag.value, 'Pass');
+                            console.log("Read Tag ->", tag.name, ":", tag.value, "Pass");
                             testsPassed++;
 
                         } else {
-                            console.log('Read Tag ->', tag.name, ':', tag.value, 'Should Be: ', test.testValue, 'Fail');
+                            console.log("Read Tag ->", tag.name, ":", tag.value, "Should Be: ", test.testValue, "Fail");
                             testsFailed++;
                         }
                     }
 
                 } catch (e) {
-                    console.log(e, 'Fail');
+                    console.log(e, "Fail");
                     testsFailed++;
                 }
                 
             }
 
-            console.log(testsPassed, 'Tests Passed.');
-            console.log(testsFailed, 'Tests Failed.');
+            console.log(testsPassed, "Tests Passed.");
+            console.log(testsFailed, "Tests Failed.");
 
             process.exit(0);
             
@@ -65,5 +65,5 @@ function testSuite(ipAddress){
         .catch(e => {
             console.log(e);
             process.exit(0);
-        })
+        });
 }

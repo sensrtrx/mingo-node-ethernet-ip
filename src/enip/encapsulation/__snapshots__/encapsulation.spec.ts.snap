@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Encapsulation Header Building Utility Builds Correct Encapsulation Buffer 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     101,
     0,
     4,
@@ -37,11 +37,11 @@ Object {
 `;
 
 exports[`Encapsulation Header Parsing Utility Builds Correct Encapsulation Buffer 1`] = `
-Object {
+{
   "command": "SendRRData",
   "commandCode": 111,
-  "data": Object {
-    "data": Array [
+  "data": {
+    "data": [
       1,
       0,
       0,
@@ -58,8 +58,8 @@ Object {
 `;
 
 exports[`Encapsulation Test Common Packet Format Helper Functions Build Helper Function Generates Correct Output 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     2,
     0,
     0,
@@ -87,8 +87,8 @@ Object {
 `;
 
 exports[`Encapsulation Test Common Packet Format Helper Functions Build Helper Function Generates Correct Output 2`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     3,
     0,
     0,
@@ -134,19 +134,19 @@ Object {
 `;
 
 exports[`Encapsulation Test Common Packet Format Helper Functions Parse Helper Function Generates Correct Output 1`] = `
-Array [
-  Object {
+[
+  {
     "TypeID": 0,
-    "data": Object {
-      "data": Array [],
+    "data": {
+      "data": [],
       "type": "Buffer",
     },
     "length": 0,
   },
-  Object {
+  {
     "TypeID": 178,
-    "data": Object {
-      "data": Array [
+    "data": {
+      "data": [
         104,
         101,
         108,
@@ -167,19 +167,19 @@ Array [
 `;
 
 exports[`Encapsulation Test Common Packet Format Helper Functions Parse Helper Function Generates Correct Output 2`] = `
-Array [
-  Object {
+[
+  {
     "TypeID": 0,
-    "data": Object {
-      "data": Array [],
+    "data": {
+      "data": [],
       "type": "Buffer",
     },
     "length": 0,
   },
-  Object {
+  {
     "TypeID": 178,
-    "data": Object {
-      "data": Array [
+    "data": {
+      "data": [
         104,
         101,
         108,
@@ -196,10 +196,10 @@ Array [
     },
     "length": 11,
   },
-  Object {
+  {
     "TypeID": 161,
-    "data": Object {
-      "data": Array [
+    "data": {
+      "data": [
         84,
         104,
         105,
@@ -223,8 +223,8 @@ Array [
 `;
 
 exports[`Encapsulation Test Encapsulation Generator Functions Register Session Returns Correct Encapsulation String 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     101,
     0,
     4,
@@ -259,8 +259,8 @@ Object {
 `;
 
 exports[`Encapsulation Test Encapsulation Generator Functions SendRRData Returns Correct Encapsulation String 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     111,
     0,
     27,
@@ -318,8 +318,8 @@ Object {
 `;
 
 exports[`Encapsulation Test Encapsulation Generator Functions SendUnitData Returns Correct Encapsulation String 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     112,
     0,
     33,
@@ -383,8 +383,8 @@ Object {
 `;
 
 exports[`Encapsulation Test Encapsulation Generator Functions Unregister Session Returns Correct Encapsulation String 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     102,
     0,
     0,

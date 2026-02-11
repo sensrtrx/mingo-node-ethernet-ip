@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`EPATH PORT Segment Build Utility Generates Appropriate Output 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     2,
     6,
   ],
@@ -11,8 +11,8 @@ Object {
 `;
 
 exports[`EPATH PORT Segment Build Utility Generates Appropriate Output 2`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     15,
     18,
     0,
@@ -23,8 +23,8 @@ Object {
 `;
 
 exports[`EPATH PORT Segment Build Utility Generates Appropriate Output 3`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     21,
     15,
     49,
@@ -49,8 +49,8 @@ Object {
 `;
 
 exports[`EPATH PORT Segment Build Utility Generates Appropriate Output 4`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     1,
     5,
   ],

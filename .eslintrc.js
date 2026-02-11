@@ -1,12 +1,12 @@
 module.exports = {
     env: {
         "jest/globals": true,
-        es6: true,
+        es2020: true,
         node: true
     },
     extends: ["eslint:recommended"],
     parserOptions: {
-        ecmaVersion: 8,
+        ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: {
             jsx: true,
@@ -22,7 +22,9 @@ module.exports = {
         "jest/no-focused-tests": "error",
         "jest/no-identical-title": "error",
         "jest/prefer-to-have-length": "warn",
-        "jest/valid-expect": "error"
+        "jest/valid-expect": "error",
+        "no-case-declarations": 0,
+        "no-async-promise-executor": 0
     },
     plugins: ["jest"]
 };

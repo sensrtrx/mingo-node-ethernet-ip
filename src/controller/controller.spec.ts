@@ -1,4 +1,4 @@
-const Controller = require("./index");
+import Controller from "./index";
 
 describe("Controller Class", () => {
     describe("Properties Accessors", () => {
@@ -15,15 +15,15 @@ describe("Controller Class", () => {
             expect(plc.scan_rate).toBe(451);
 
             expect(() => {
-                plc.scan_rate = null;
+                plc.scan_rate = null as any;
             }).toThrow();
 
             expect(() => {
-                plc.scan_rate = undefined;
+                plc.scan_rate = undefined as any;
             }).toThrow();
 
             expect(() => {
-                plc.scan_rate = "hello";
+                plc.scan_rate = "hello" as any;
             }).toThrow();
         });
 
@@ -46,15 +46,15 @@ describe("Controller Class", () => {
             expect(plc.connectedMessaging).toBeFalsy();
 
             expect(() => {
-                plc.connectedMessaging = 3;
+                plc.connectedMessaging = 3 as any;
             }).toThrow();
 
             expect(() => {
-                plc.connectedMessaging = "connected";
+                plc.connectedMessaging = "connected" as any;
             }).toThrow();
 
             expect(() => {
-                plc.connectedMessaging = null;
+                plc.connectedMessaging = null as any;
             }).toThrow();
         });
 
@@ -86,7 +86,7 @@ describe("Controller Class", () => {
             const plc = new Controller();
             jest.spyOn(plc, "emit");
             const srrdBuf = Buffer.from([212,0,0,0,65,2,188,0,34,34,34,34,66,66,51,51,55,19,0,0,16,39,0,0,16,39,0,0,0,0]);
-            const srrd = [{"TypeID":0,"data":Buffer.from([])},{"TypeID":178,"data":srrdBuf}];
+            const srrd = [{"TypeID":0,"data":Buffer.from([])},{"TypeID":178,"data":srrdBuf}] as any;
             plc._handleSendRRDataReceived(srrd);
             const retBuf = Buffer.from([65,2,188,0,34,34,34,34,66,66,51,51,55,19,0,0,16,39,0,0,16,39,0,0,0,0]);
             expect(plc.emit).toHaveBeenCalledWith("Forward Open", null, retBuf);
@@ -95,7 +95,7 @@ describe("Controller Class", () => {
             const plc = new Controller();
             jest.spyOn(plc, "emit");
             const srrdBuf = Buffer.from([206,0,0,0,66,66,51,51,55,19,0,0,0,0]);
-            const srrd = [{"TypeID":0,"data":Buffer.from([])},{"TypeID":178,"data":srrdBuf}];
+            const srrd = [{"TypeID":0,"data":Buffer.from([])},{"TypeID":178,"data":srrdBuf}] as any;
             plc._handleSendRRDataReceived(srrd);
             const retBuf = Buffer.from([66,66,51,51,55,19,0,0,0,0]);
             expect(plc.emit).toHaveBeenCalledWith("Forward Close", null, retBuf);
@@ -104,7 +104,7 @@ describe("Controller Class", () => {
             const plc = new Controller();
             jest.spyOn(plc, "emit");
             const srrdBuf = Buffer.from([138,0,0,0,2,0,6,0,14,0,204,0,0,0,195,0,241,216,204,0,0,0,195,0,64,34]);
-            const srrd = [{"TypeID":0,"data":Buffer.from([34,34,34,34])},{"TypeID":178,"data":srrdBuf}];
+            const srrd = [{"TypeID":0,"data":Buffer.from([34,34,34,34])},{"TypeID":178,"data":srrdBuf}] as any;
             plc._handleSendRRDataReceived(srrd);
             const respObj = [ { service: 204,
                 generalStatusCode: 0,
@@ -118,7 +118,7 @@ describe("Controller Class", () => {
                 extendedStatus: [],
                 data: Buffer.from([0xc3,0x00,0x40,0x22])
             }];
-            expect(plc.emit).toHaveBeenCalledWith("Multiple Service Packet", null, respObj);            
+            expect(plc.emit).toHaveBeenCalledWith("Multiple Service Packet", null, respObj);
         });
     });
 
@@ -127,7 +127,7 @@ describe("Controller Class", () => {
             const plc = new Controller();
             jest.spyOn(plc, "emit");
             const sudBuf = Buffer.from([1,0,129,0,0,0,1,0,14,0,77,0,17,4,112,32,232,2,61,64,22,49,55,54,57,45,76,51,50,69,47,65,32,76,79,71,73,88,53,51,51,50,69]);
-            const sud = [{"TypeID":161,"data":Buffer.from([34,34,34,34])},{"TypeID":177,"data":sudBuf}];
+            const sud = [{"TypeID":161,"data":Buffer.from([34,34,34,34])},{"TypeID":177,"data":sudBuf}] as any;
             plc._handleSendUnitDataReceived(sud);
             const retBuf = Buffer.from([1,0,14,0,77,0,17,4,112,32,232,2,61,64,22,49,55,54,57,45,76,51,50,69,47,65,32,76,79,71,73,88,53,51,51,50,69]);
             expect(plc.emit).toHaveBeenCalledWith("Get Attribute All", null, retBuf);
@@ -136,7 +136,7 @@ describe("Controller Class", () => {
             const plc = new Controller();
             jest.spyOn(plc, "emit");
             const sudBuf = Buffer.from([2,0,204,0,0,0,195,0,241,216]);
-            const sud = [{"TypeID":161,"data":Buffer.from([34,34,34,34])},{"TypeID":177,"data":sudBuf}];
+            const sud = [{"TypeID":161,"data":Buffer.from([34,34,34,34])},{"TypeID":177,"data":sudBuf}] as any;
             plc._handleSendUnitDataReceived(sud);
             const retBuf = Buffer.from([195,0,241,216]);
             expect(plc.emit).toHaveBeenCalledWith("Read Tag", null, retBuf);
@@ -145,7 +145,7 @@ describe("Controller Class", () => {
             const plc = new Controller();
             jest.spyOn(plc, "emit");
             const sudBuf = Buffer.from([2,0,138,0,0,0,2,0,6,0,14,0,204,0,0,0,195,0,241,216,204,0,0,0,195,0,64,34]);
-            const sud = [{"TypeID":161,"data":Buffer.from([34,34,34,34])},{"TypeID":177,"data":sudBuf}];
+            const sud = [{"TypeID":161,"data":Buffer.from([34,34,34,34])},{"TypeID":177,"data":sudBuf}] as any;
             plc._handleSendUnitDataReceived(sud);
             const respObj = [ { service: 204,
                 generalStatusCode: 0,
@@ -159,7 +159,7 @@ describe("Controller Class", () => {
                 extendedStatus: [],
                 data: Buffer.from([0xc3,0x00,0x40,0x22])
             }];
-            expect(plc.emit).toHaveBeenCalledWith("Multiple Service Packet", null, respObj);            
+            expect(plc.emit).toHaveBeenCalledWith("Multiple Service Packet", null, respObj);
         });
     });
 });

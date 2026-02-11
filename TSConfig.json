@@ -6,8 +6,9 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true,
-    "declaration": true
+    "declaration": true,
+    "types": ["jest", "node"]
   },
   "include": ["src/**/*"],
-  "ignore":["node_modules"]
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

@@ -1,4 +1,4 @@
 const Scanner = require("./udp");
-const ForkScanner = require("./fork/parent")
+const ForkScanner = require("./fork/parent");
 
 module.exports = {Scanner, ForkScanner};

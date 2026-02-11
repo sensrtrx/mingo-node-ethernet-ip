@@ -1,4 +1,4 @@
-const manager = require("./index");
+import * as manager from "./index";
 
 describe("Connection Manager", () => {
     describe("Building", () => {
@@ -22,25 +22,25 @@ describe("Connection Manager", () => {
         it("Error-cases: owner", () => {
             const { build_connectionParameters, priority, fixedVar, connectionType } = manager;
             expect(function() {
-                build_connectionParameters("1000", connectionType["PointToPoint"], priority["Low"], fixedVar["Variable"], 500);
+                build_connectionParameters("1000" as any, connectionType["PointToPoint"], priority["Low"], fixedVar["Variable"], 500);
             }).toThrow();
         });
         it("Error-cases: connectionType", () => {
             const { build_connectionParameters, owner, priority, fixedVar } = manager;
             expect(function() {
-                build_connectionParameters(owner["Exclusive"], "1000", priority["Low"], fixedVar["Variable"], 500);
+                build_connectionParameters(owner["Exclusive"], "1000" as any, priority["Low"], fixedVar["Variable"], 500);
             }).toThrow();
         });
         it("Error-cases: priority", () => {
             const { build_connectionParameters, owner, fixedVar, connectionType } = manager;
             expect(function() {
-                build_connectionParameters(owner["Exclusive"], connectionType["PointToPoint"], "1000", fixedVar["Variable"], 500);
+                build_connectionParameters(owner["Exclusive"], connectionType["PointToPoint"], "1000" as any, fixedVar["Variable"], 500);
             }).toThrow();
         });
         it("Error-cases: fixedVar", () => {
             const { build_connectionParameters, owner, priority, connectionType } = manager;
             expect(function() {
-                build_connectionParameters(owner["Exclusive"], connectionType["PointToPoint"], priority["Low"], "1000", 500);
+                build_connectionParameters(owner["Exclusive"], connectionType["PointToPoint"], priority["Low"], "1000" as any, 500);
             }).toThrow();
         });
         it("Error-cases: size", () => {

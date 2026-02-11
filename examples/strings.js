@@ -1,18 +1,18 @@
-const {Controller, Tag,  Structure} = require("../dist/index.js")
+const {Controller} = require("../dist/index.js");
 
 let c = new Controller(true);
 
 (async function (){
-    await c.connect('192.168.1.10');
+    await c.connect("192.168.1.10");
     //let tag = new Structure('TestString', c.state.tagList, 'MainProgram')
-    let tag = c.newTag('TestString', 'MainProgram')
-    await c.readTag(tag)
+    let tag = c.newTag("TestString", "MainProgram");
+    await c.readTag(tag);
 
-    console.log(tag.value)
+    console.log(tag.value);
 
-    tag.value = 'America... F*** YEAH!'
+    tag.value = "America... F*** YEAH!";
 
-    await c.writeTag(tag)
+    await c.writeTag(tag);
 
-    console.log(tag.value)
+    console.log(tag.value);
 })();

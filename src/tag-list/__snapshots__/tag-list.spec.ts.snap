@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Tag List Generate List Message Requests Method Generates Appropriate Output Instance 0 1`] = `
-Object {
-  "data": Array [
+{
+  "data": [
     85,
     3,
     32,
@@ -23,19 +23,19 @@ Object {
 `;
 
 exports[`Tag List Get Program Names Generates Appropriate Output 1`] = `
-Array [
+[
   "MainProgram",
   "MainProgram2",
 ]
 `;
 
 exports[`Tag List Parse Tag List Response Message Generates Appropriate Output 1`] = `
-Array [
-  Object {
+[
+  {
     "id": 3815,
     "name": "HowLongCanYouMakeAnIntegerName",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -44,11 +44,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 6353,
     "name": "Timer2",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 3971,
       "reserved": false,
@@ -57,11 +57,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 7162,
     "name": "Map:LocalENB",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 105,
       "reserved": true,
@@ -70,11 +70,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 8255,
     "name": "Integer6",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -83,11 +83,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 9248,
     "name": "Map:Controller",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 105,
       "reserved": true,
@@ -96,11 +96,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 9602,
     "name": "AnalogOne",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 202,
       "reserved": false,
@@ -109,11 +109,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 11241,
     "name": "Integer3",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -122,11 +122,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 12648,
     "name": "BitOne",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 193,
       "reserved": false,
@@ -135,11 +135,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 13748,
     "name": "LongIntegerName1",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 195,
       "reserved": false,
@@ -148,11 +148,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 14397,
     "name": "Integer5",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -161,11 +161,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 16174,
     "name": "ThisIntegerNameIsEvenLongerThanTheFirst1",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -174,11 +174,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 16805,
     "name": "LongStringName1",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 4046,
       "reserved": false,
@@ -187,11 +187,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 19059,
     "name": "String2",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 4046,
       "reserved": false,
@@ -200,11 +200,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 20716,
     "name": "TheInteger",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 195,
       "reserved": false,
@@ -213,11 +213,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 22820,
     "name": "Program:MainProgram",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 104,
       "reserved": true,
@@ -226,11 +226,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 26297,
     "name": "ThisIsAnotherMaximumLengthTagName1111111",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -239,11 +239,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 31819,
     "name": "Integer4",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 196,
       "reserved": false,
@@ -252,11 +252,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 33528,
     "name": "Program:MainProgram2",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 104,
       "reserved": true,
@@ -265,11 +265,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 35479,
     "name": "BitTwo",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 193,
       "reserved": false,
@@ -278,11 +278,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 39856,
     "name": "String1",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 4046,
       "reserved": false,
@@ -291,11 +291,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 46090,
     "name": "String3",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 4046,
       "reserved": false,
@@ -304,11 +304,11 @@ Array [
       "typeName": null,
     },
   },
-  Object {
+  {
     "id": 46883,
     "name": "Map:Local",
     "program": undefined,
-    "type": Object {
+    "type": {
       "arrayDims": 0,
       "code": 105,
       "reserved": true,

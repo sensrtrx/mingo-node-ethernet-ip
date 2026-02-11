@@ -5,7 +5,7 @@ class Controller {
     constructor(port=2222, localAddress) {
         this.socket = dgram.createSocket("udp4");
         this.socket.bind({port: port, address: localAddress});
-        this.localAddress = localAddress
+        this.localAddress = localAddress;
     
         this.connections = [];
         this._setupMessageEvent();

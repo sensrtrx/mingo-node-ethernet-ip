@@ -1,4 +1,4 @@
-const { build } = require("./index");
+import { build } from "./index";
 
 describe("EPATH", () => {
     describe("DATA Segment Build Utility", () => {
@@ -35,7 +35,7 @@ describe("EPATH", () => {
         });
 
         it("Throws with Bad Input", () => {
-            const fn = (data, ansi = true) => {
+            const fn = (data: any, ansi = true) => {
                 return () => {
                     build(data, ansi);
                 };
@@ -46,8 +46,8 @@ describe("EPATH", () => {
             expect(fn({ prop: 76 })).toThrow();
             expect(fn(Buffer.from("hello world"))).not.toThrow();
             expect(fn(Buffer.from("hello world"), false)).not.toThrow();
-            expect(fn(1, -1)).toThrow();
-            expect(fn(1, { hey: "you" })).toThrow();
+            expect(fn(1, -1 as any)).toThrow();
+            expect(fn(1, { hey: "you" } as any)).toThrow();
         });
     });
 });

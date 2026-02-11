@@ -1,4 +1,4 @@
-const { build } = require("./index");
+import { build } from "./index";
 
 describe("EPATH", () => {
     describe("PORT Segment Build Utility", () => {
@@ -17,7 +17,7 @@ describe("EPATH", () => {
         });
 
         it("Throws with Bad Input", () => {
-            const fn = (port, link) => {
+            const fn = (port: any, link: any) => {
                 return () => {
                     build(port, link);
                 };
